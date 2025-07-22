@@ -303,7 +303,7 @@ import {
   getUploadProgress, 
   getUploadConfig, 
   getDiskInfo 
-} from '../../api/api';
+} from '@/api/api';
 import {
   getFileType,
   getFileTypeName,
@@ -372,8 +372,8 @@ function handleM3u8DirChange(event: Event) {
       }
       let outputMp4 = diskRoot.value.replace(/[\\/]+$/, '') + '/' + parentFolder + '.mp4'
       outputMp4 = outputMp4.replace(/\s+/g, '') // 剔除所有空格
-      // outputMp4 = outputMp4.replace('D:/软件', 'D:/软件/Downloads') // 只替换outputMp4中的D:/软件
-      outputMp4 = outputMp4.replace('D:/软件', 'D:/软件/编程/视频素材存储') // 只替换outputMp4中的D:/软件
+      outputMp4 = outputMp4.replace('D:/软件', 'D:/软件/Downloads') // 只替换outputMp4中的D:/软件
+      // outputMp4 = outputMp4.replace('D:/软件', 'D:/软件/编程/视频素材存储') // 只替换outputMp4中的D:/软件
       const cmd = `ffmpeg -i "${absPath}" -c copy ${outputMp4}`
       cmds.push(cmd)
     }

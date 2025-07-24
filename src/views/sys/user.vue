@@ -255,7 +255,7 @@ onMounted(() => {
           </el-table-column>
 
           <el-table-column
-            prop="created_at"
+            prop="createdAt"
             label="创建时间"
             min-width="160"
             sortable
@@ -263,7 +263,7 @@ onMounted(() => {
             header-align="center"
           >
             <template #default="scope">
-              {{ formatTime(scope.row.created_at) }}
+              {{ formatTime(scope.row.createdAt) }}
             </template>
           </el-table-column>
 

@@ -4,7 +4,7 @@ import { getCookie } from './cookie';
 // 创建axios实例
 const service = axios.create({
   baseURL: '/api', // 通过vite代理转发
-  timeout: 5000, // 请求超时时间
+  // timeout: 5000, // 请求超时时间
 });
 
 // 请求拦截器

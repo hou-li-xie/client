@@ -302,7 +302,8 @@ import {
   mergeChunks, 
   getUploadProgress, 
   getUploadConfig, 
-  getDiskInfo 
+  getDiskInfo ,
+    runCmd
 } from '@/api/api';
 import {
   getFileType,
@@ -398,7 +399,8 @@ async function handleSmartConvert() {
   let idx = 0
   async function runOne(cmd: string) {
     try {
-      const res = await request.post('/tools/run-cmd', { cmd })
+      console.log('running cmd:', cmd)
+      const res = await runCmd(cmd)
       const { code } = res.data ? res.data : res
       if (code === 0) {
         success++
@@ -477,17 +479,33 @@ async function refreshConfig() {
   configLoading.value = true;
   try {
     const response = await getUploadConfig();
-    // 这里加一行打印
     console.log('上传配置', response);
-    // 关键：根据实际返回结构赋值
+
+    // 正确处理响应结构
     const res: any = response;
+    let configData;
     if (res.video && res.image) {
-      config.value = res;
+      configData = res;
     } else if (res.data && res.data.video && res.data.image) {
-      config.value = res.data;
+      configData = res.data;
     } else {
-      config.value = {};
+      configData = {};
     }
+
+    // 确保 maxSize 是数值类型
+    if (configData.video) {
+      if (typeof configData.video.maxSize === 'string') {
+        configData.video.maxSize = parseInt(configData.video.maxSize, 10);
+      }
+    }
+
+    if (configData.image) {
+      if (typeof configData.image.maxSize === 'string') {
+        configData.image.maxSize = parseInt(configData.image.maxSize, 10);
+      }
+    }
+
+    config.value = configData;
   } catch (error) {
     console.error('获取配置失败:', error);
     ElMessage.error('获取上传配置失败');
@@ -495,6 +513,7 @@ async function refreshConfig() {
     configLoading.value = false;
   }
 }
+
 
 async function refreshDiskInfo() {
   diskInfoLoading.value = true;

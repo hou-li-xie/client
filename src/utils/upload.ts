@@ -65,7 +65,7 @@ export function getProgressColor(percentage: number): string {
  */
 export function validateFile(file: File, config: any): string[] {
   const errors: string[] = [];
-  
+
   if (!config) {
     errors.push('配置信息不完整');
     return errors;
@@ -73,7 +73,7 @@ export function validateFile(file: File, config: any): string[] {
 
   const fileType = getFileType(file);
   const ext = '.' + file.name.split('.').pop()?.toLowerCase();
-  
+
   if (fileType === FileType.OTHER) {
     errors.push(`不支持的文件类型: ${file.name}`);
     return errors;
@@ -85,18 +85,66 @@ export function validateFile(file: File, config: any): string[] {
     return errors;
   }
 
+  // 添加调试信息
+  console.log('文件验证信息:', {
+    fileName: file.name,
+    fileSize: file.size,
+    fileSizeFormatted: formatFileSize(file.size),
+    maxSize: configForType.maxSize,
+    maxSizeFormatted: configForType.maxSizeFormatted,
+    configForType
+  });
+
   if (!configForType.allowedTypes.includes(ext)) {
     errors.push(`不支持的文件格式: ${file.name} (${ext})`);
     return errors;
   }
 
-  if (file.size > configForType.maxSize) {
-    errors.push(`文件过大: ${file.name} (${formatFileSize(file.size)} > ${configForType.maxSizeFormatted})`);
+  // 处理 maxSize 可能的整数溢出问题
+  let maxSizeInBytes = typeof configForType.maxSize === 'string'
+      ? parseInt(configForType.maxSize, 10)
+      : configForType.maxSize;
+
+  // 检查是否发生了整数溢出（32位整数的最大值是 2147483647）
+  // 如果 maxSize 是负数但 maxSizeFormatted 显示为较大的值（如 "2 GB"），则尝试从格式化字符串中解析
+  if (maxSizeInBytes < 0 && configForType.maxSizeFormatted) {
+    // 从 maxSizeFormatted 字符串中提取数值
+    const formatted = configForType.maxSizeFormatted.toLowerCase();
+    const match = formatted.match(/^([\d.]+)\s*([tgmk])b?$/);
+    if (match) {
+      const value = parseFloat(match[1]);
+      const unit = match[2];
+      switch (unit) {
+        case 'k':
+          maxSizeInBytes = value * 1024;
+          break;
+        case 'm':
+          maxSizeInBytes = value * 1024 * 1024;
+          break;
+        case 'g':
+          maxSizeInBytes = value * 1024 * 1024 * 1024;
+          break;
+        case 't':
+          maxSizeInBytes = value * 1024 * 1024 * 1024 * 1024;
+          break;
+      }
+    }
+  }
+
+  // 如果仍然无效，则使用默认值（例如 100MB）
+  if (maxSizeInBytes <= 0) {
+    maxSizeInBytes = 100 * 1024 * 1024; // 默认 100MB
+  }
+
+  if (file.size > maxSizeInBytes) {
+    const maxSizeFormatted = configForType.maxSizeFormatted || formatFileSize(maxSizeInBytes);
+    errors.push(`文件过大: ${file.name} (${formatFileSize(file.size)} > ${maxSizeFormatted})`);
     return errors;
   }
 
   return errors;
 }
+
 
 /**
  * 批量验证文件
@@ -114,6 +162,7 @@ export function validateFiles(files: File[], config: any): string[] {
 
   files.forEach(file => {
     const fileErrors = validateFile(file, config);
+    console.log(fileErrors)
     errors.push(...fileErrors);
   });
 

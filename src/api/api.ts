@@ -145,3 +145,31 @@ export function deleteImageById(id: number | string) {
 export function renameMediaFile(id: number, newName: string) {
   return request.put(`/tools/rename-media/${id}`, { newName });
 }
+// CSV上传接口
+export function uploadCSV(formData: FormData): Promise<{ data: any }> {
+  return request.post('/csv/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+}
+
+// 数据获取接口
+export function getCsvData(startDate: string, endDate: string): Promise<{ data: any }> {
+  return request.get('/csv/data', {
+    params: {
+      startDate,
+      endDate
+    }
+  });
+}
+
+
+// 数据获取接口
+export function getExpenseCategoryAmount(): Promise<{ data: any }> {
+  return request.get('/csv/expense-category-amount');
+}
+// getExpenseCategoryRanking
+
+// 数据获取接口
+export function getExpenseCategoryRanking(): Promise<{ data: any }> {
+  return request.get('/csv/expense-category-ranking');
+}

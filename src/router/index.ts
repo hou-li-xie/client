@@ -93,6 +93,24 @@ const router = createRouter({
             }
           ],
         },
+        {
+          path: "/salary",
+          name: "salary",
+          // component: () => import("@/views/material/show.vue"),
+          meta: {
+            title: "工薪管理",
+          },
+          children: [
+            {
+              path: "management",
+              name: "management",
+              component: () => import("@/views/salary/management.vue"),
+              meta: {
+                title: "薪水",
+              },
+            }
+          ],
+        },
       ],
     },
   ],

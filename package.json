@@ -13,9 +13,12 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "bootstrap-icons": "^1.13.1",
+    "dayjs": "^1.11.13",
+    "echarts": "^5.6.0",
     "element-plus": "^2.10.3",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.3",
+    "pinia-plugin-persistedstate": "^4.4.1",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1"
   },

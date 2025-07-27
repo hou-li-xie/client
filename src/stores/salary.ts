@@ -1,58 +1,57 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-
-// 定义数据接口
-interface ChartDataItem {
-    time: string
-    income: number | string
-    expense: number | string
-}
-
-interface ChartData {
-    total: ChartDataItem[]
-    originData: any[]
-}
+import {defineStore} from 'pinia'
+import {ref} from 'vue'
 
 export const useSalaryStore = defineStore('salary', () => {
-    // 状态变量
-    const chartData = ref<ChartData>({
-        total: [],
-        originData: []
-    })
-    const startDate = ref<string | null>(null)
-    const endDate = ref<string | null>(null)
-    const expenseCategoryAmount = ref<Record<string, number>>({}) // 新增状态变量
+        const chartData = ref({
+            total: [] as any[],
+            originData: [] as any[]
+        })
 
-    // 设置时间范围
-    const setTimeRange = (start: string | null, end: string | null) => {
-        startDate.value = start
-        endDate.value = end
-    }
+        const expenseCategoryAmount = ref<Record<string, number>>({})
 
-    // 设置图表数据
-    const setChartData = (data: ChartData) => {
-        chartData.value = data
-    }
+        // 添加expenseRanking状态
+        const expenseCategoryRanking = ref<Array<{ category: string, amount: number, count: number }>>([])
 
-    // 设置支出分类金额数据
-    const setExpenseCategoryAmount = (data: Record<string, number>) => {
-        expenseCategoryAmount.value = data
-    }
+        const timeRange = ref({
+            start: '',
+            end: ''
+        })
 
-    return {
-        chartData,
-        startDate,
-        endDate,
-        expenseCategoryAmount,
-        setTimeRange,
-        setChartData,
-        setExpenseCategoryAmount // 暴露新方法
+        const setChartData = (data: { total: any[], originData: any[] }) => {
+            chartData.value = data
+        }
+
+        const setExpenseCategoryAmount = (data: Record<string, number>) => {
+            expenseCategoryAmount.value = data
+        }
+
+        // 添加设置expenseRanking的方法
+        const setExpenseCategoryRanking = (data: Array<{ category: string, amount: number, count: number }>) => {
+            expenseCategoryRanking.value = data
+        }
+
+        const setTimeRange = (start: string, end: string) => {
+            timeRange.value = {start, end}
+        }
+
+        return {
+            chartData,
+            expenseCategoryAmount,
+            expenseCategoryRanking, // 导出新添加的状态
+            timeRange,
+            setChartData,
+            setExpenseCategoryAmount,
+            setExpenseCategoryRanking, // 导出新添加的方法
+            setTimeRange
+        }
+    },
+    //数据持久化
+    {
+        persist: [
+            {
+                key: 'salary',
+                storage: localStorage
+            }
+        ]
     }
-}, {
-    // 持久化配置
-    persist: {
-        key: 'salary-store',
-        storage: localStorage,
-        // paths: ['chartData', 'startDate', 'endDate', 'expenseCategoryAmount']
-    }
-})
+)

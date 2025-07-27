@@ -10,7 +10,6 @@ const salaryStore = useSalaryStore()
 const upload = ref()
 const isUploading = ref(false)
 const selectedFile = ref<File | null>(null)
-const expenseRanking = ref<Array<{ category: string, amount: number, count: number }>>([])
 
 // 图表相关
 const lineChartContainer = ref<HTMLDivElement | null>(null)
@@ -117,7 +116,7 @@ const queryDataByDateRange = async () => {
     // 获取支出排行数据
     const rankingResponse = await getExpenseCategoryRanking()
     if (rankingResponse.data) {
-      expenseRanking.value = rankingResponse.data.slice(0, 5) // 只取前5个
+      salaryStore.setExpenseCategoryRanking(rankingResponse.data)
     }
   } catch (error) {
     ElMessage.error('数据获取失败')
@@ -231,7 +230,14 @@ const renderCharts = () => {
 
 watch(() => salaryStore.chartData, renderCharts, {deep: true})
 watch(() => salaryStore.expenseCategoryAmount, renderCharts, {deep: true})
-
+// watch(() => expenseRanking.value, ()=>{
+//
+//   if (salaryStore.tableData){
+//     console.log('11111')
+//     expenseRanking.value=salaryStore.tableData
+//   }
+//
+// }, {deep: true})
 onMounted(() => {
   initCharts()
   window.addEventListener('resize', () => {
@@ -293,23 +299,15 @@ onMounted(() => {
       <div class="chart-container pie-chart-container" ref="pieChartContainer"></div>
 
       <div class="chart-container right-content">
-<!--        <div class="expense-ranking">-->
-<!--          <h3>支出类目排行</h3>-->
-<!--          <div class="ranking-list">-->
-<!--            <div-->
-<!--                v-for="(item, index) in expenseRanking"-->
-<!--                :key="index"-->
-<!--                class="ranking-item"-->
-<!--            >-->
-<!--              <div class="category">{{ item.category }}</div>-->
-<!--              <div class="details">-->
-<!--                <span class="amount">¥{{ item.amount.toFixed(2) }}</span>-->
-<!--                <span class="count">{{ item.count }}笔</span>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--          <div class="view-more">查看更多</div>-->
-<!--        </div>-->
+        <el-table  :data="salaryStore.expenseCategoryRanking" style="width: 100%">
+          <el-table-column prop="category" label="类目" width="180" />
+          <el-table-column prop="count" label="笔数" width="180" />
+          <el-table-column sortable  prop="amount" label="金额" >
+            <template #default="{row}">
+              <div>{{ row.amount.toFixed(2) }}</div>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
     </div>
   </div>
